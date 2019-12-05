@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575512168269.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "130303340",
+    "id" : "F45BE28F",
+    "lastKnownWriteTime" : 1575550274,
+    "last_content_update" : 1575550274654,
+    "path" : "~/Documents/GitHub/Modeling-Project/Model.R",
+    "project_path" : "Model.R",
+    "properties" : {
+        "cursorPosition" : "578,15",
+        "scrollLine" : "573"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
