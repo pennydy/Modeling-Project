@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "3983306507",
     "id" : "F45BE28F",
-    "lastKnownWriteTime" : 1575557368,
-    "last_content_update" : 1575557368814,
+    "lastKnownWriteTime" : 1575560603,
+    "last_content_update" : 1575560603717,
     "path" : "~/Documents/GitHub/Modeling-Project/Model.R",
     "project_path" : "Model.R",
     "properties" : {
-        "cursorPosition" : "636,0",
-        "scrollLine" : "620"
+        "cursorPosition" : "563,1",
+        "scrollLine" : "551"
     },
     "read_only" : false,
     "read_only_alternatives" : [

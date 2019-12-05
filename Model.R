@@ -401,6 +401,10 @@ fei.word <-
 bei.word <-
   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1)
 
+# nodes in the semantic layer are presented as a group of three:
+# first one being the English target word, second one being the Mandarin translation
+# shared by the target and competitor (Condition 1), third one being the Mandarin translation
+# of the competitor that partially overlaps with the Mandarin translation of the target (Conditoin 2)
 semantic.connections <- matrix(
   c(tree.word, shu.word, tu.word, eye.word, mu.word, lu.word, dam.word, ba.word, wa.word, 
     arm.word, bi.word, mi.word, rain.word, yu.word, gu.word, toe.word, zhi.word, chi.word,
@@ -448,15 +452,17 @@ input.empty.vowel <- c(c(0, 0), c(0, 0), c(0, 0, 0), c(0, 0, 0, 0))
 
 # -------> include the empty fields?
 input.rain.sound <- cbind.fill(
-  input.r, input.e, input.i, input.n, fill=NA
+  input.r, input.empty.consonant, input.e, input.i, input.n, input.empty.consonant,
+  fill=NA
 )
 
-input.rain.feather <- matrix(
-  c(
-    c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-    c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
-  ncol = 2)
-input.rain.feather[, 1]
+# input.rain.feather.alt <- matrix(
+#   c(
+#     c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+#     c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
+#   ncol = 2)
+input.rain.feather <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0)
+
 
 # building the model
 excitatory.weight <- 0.1
@@ -529,7 +535,7 @@ phonolexical.activation <- function(phoneme.input, visual.input){
   phonolexical.units <- rep(0,21)
   for(cycle in 1:cycles){
     phoneme.input.weight <- phoneme.input * excitatory.weight
-    semantic.input.weight <- visual.to.semantic.activation(visual.input) * excitatory.weight
+    semantic.input.weight <- visual.input * excitatory.weight
     for (i in 1:21){
       # excitatory inputs include both the output of the phoneme level
       # as well as the activation at the semantic level 
@@ -555,43 +561,6 @@ phonolexical.activation <- function(phoneme.input, visual.input){
   phonolexical.response.probability <- phonolexical.units / sum(phonolexical.units)
   # print(phonolexical.response.probability)
   return (phonolexical.response.probability)
-}
-
-visual.to.semantic.activation <- function(input){
-  visual.to.semantic.output <- c()
-  
-  for(i in 1:2){
-    visual.input <- input[, i]
-    semantic.units <- rep(0,21)
-    
-    for(cycle in 1:cycles){
-      input.weight <- visual.input * semantic.excitatory.weight
-      print(input.weight)
-      for (n in 1:21){
-        excitatory.input <- semantic.connections[, n] * input.weight
-        semantic.units[n] <- semantic.units[n] + sum(excitatory.input)
-        if(semantic.units[n] < 0){
-          semantic.units[n] <- 0
-        }
-      }
-      # print(semantic.units)
-      inhibitory.activity <- numeric()
-      for(n in 1:21){
-        inhibitory.activity[n] <- sum(semantic.units[-n] * inhibitory.weight)
-      }
-      # print(inhibitory.activity)
-      semantic.units <- semantic.units + inhibitory.activity
-      for(n in 1:21){
-        if(semantic.units[n] < 0){
-          semantic.units[n] <- 0
-        }
-      }
-    }
-    semantic.to.phonolexical.probability <- semantic.units / sum(semantic.units)
-    visual.to.semantic.output <- c(visual.to.semantic.output, semantic.to.phonolexical.probability)
-  }
-  # print(semantic.response.probability)
-  return (visual.to.semantic.output)
 }
 
 # a vector to record the activity of each word at the semantic level
@@ -623,10 +592,6 @@ semantic.activation <- function(input){
   return (semantic.response.probability)
 }
 
-input.rain.sound <- cbind.fill(
-  input.r, input.empty.consonant, input.e, input.i, input.n, input.empty.consonant,
-  fill=NA
-)
 
 
 visual.to.semantic.activation(input.rain.feather)
