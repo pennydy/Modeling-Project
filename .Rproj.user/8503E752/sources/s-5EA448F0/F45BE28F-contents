@@ -512,18 +512,6 @@ fei.word <-
 lung.word <-
   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1)
 
-# ---- wrong representation of nodes in the semantic layer ----
-# nodes in the semantic layer are presented as a group of three:
-# first one being the English target word, second one being the Mandarin translation
-# shared by the target and competitor (Condition 1), third one being the English name for the
-# competitor
-# semantic.connections <- matrix(
-#   c(tree.word, shu.word, book.word, eye.word, mu.word, wood.word, dam.word, ba.word, scar.word, 
-#     arm.word, bi.word, coin.word, rain.word, yu.word, fish.word, toe.word, zhi.word, mole.word,
-#     fee.word, fei.word, lung.word),
-#   ncol = 21
-# )
-# ---- wrong representation of nodes in the semantic layer ----
 
 
 # nodes in the semantic layer are presented as a group of TWO:
@@ -538,7 +526,7 @@ semantic.connections <- matrix(
 
 # input: rain -> this is only for testing the semantic layer
 # input.rain.word <-
-#   c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+#   c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 
 # input: rain (phonolexical level) -> this is only for testing the phonolexical layer
 # input.rain <- cbind.fill(
@@ -584,9 +572,9 @@ input.rain.fish <- c(0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
 
 
 # building the model
-excitatory.weight <- 0.5
-eng.excitatory.weight <- 0.4
-ma.excitatory.weight <- 0.2
+excitatory.weight <- 0.1
+eng.excitatory.weight <- 0.1
+ma.excitatory.weight <- 0.08
 
 inhibitory.weight <- -0.05
 
@@ -659,19 +647,19 @@ phonolexical.activation <- function(phoneme.input, visual.input){
   phonolexical.units <- rep(0,21)
   for(cycle in 1:cycles){
     phoneme.input.weight <- phoneme.input * excitatory.weight
-    for (n in 1:14){
+    for (n in 1:21){
       # excitatory inputs include both the output of the phoneme level
       # as well as the activation at the semantic level 
       phoneme.excitatory.input <- phonolexical.connections[, n] * phoneme.input.weight
       phonolexical.units[n] <- phonolexical.units[n] + sum(phoneme.excitatory.input)
-      if (n %% 2 == 1 && visual.input[n] != 0){
-        index <- (n %/% 2 + 1) * 3 + 1
-        phonolexical.units[index] <- phonolexical.units[index] + visual.input[n] * eng.excitatory.weight
-        phonolexical.units[index+1] <- phonolexical.units[index+1] + visual.input[n] * ma.excitatory.weight 
-      } else {
-        index <- (n %/% 2) * 3
-        phonolexical.units[index] <- phonolexical.units[index] + visual.input[n] * eng.excitatory.weight
-        phonolexical.units[index-1] <- phonolexical.units[index-1] + visual.input[n] * ma.excitatory.weight
+      if (n %% 3 == 1){ #&& visual.input[n] != 0){
+        index <- (n %/% 3) * 2 + 1
+        phonolexical.units[n] <- phonolexical.units[n] + visual.input[index] * eng.excitatory.weight
+        phonolexical.units[n+1] <- phonolexical.units[n+1] + visual.input[index] * ma.excitatory.weight 
+      } else if (n %% 3 == 0) {
+        index <- (n %/% 3) * 2
+        phonolexical.units[n] <- phonolexical.units[n] + visual.input[index] * eng.excitatory.weight
+        phonolexical.units[n-1] <- phonolexical.units[n-1] + visual.input[index] * ma.excitatory.weight
       }
       if(phonolexical.units[n] < 0){
         phonolexical.units[n] <- 0
@@ -697,7 +685,7 @@ phonolexical.activation <- function(phoneme.input, visual.input){
 # a vector to record the activity of each word at the semantic level
 semantic.activation <- function(input){
   semantic.units <- rep(0,14)
-  for(cycle in 1:cycles){
+  for(cycle in 1:1){
     input.weight <- input * excitatory.weight
     for (n in 1:14){
       excitatory.input <- semantic.connections[, n] * input.weight
@@ -706,8 +694,9 @@ semantic.activation <- function(input){
         semantic.units[n] <- 0
       }
     }
+    print(semantic.units)
     inhibitory.activity <- numeric()
-    for(i in 1:14){
+    for(n in 1:14){
       inhibitory.activity[n] <- sum(semantic.units[-n] * inhibitory.weight)
     }
     semantic.units <- semantic.units + inhibitory.activity
@@ -719,7 +708,6 @@ semantic.activation <- function(input){
   }
   # the response probability for words at semantic level
   semantic.response.probability <- semantic.units / sum(semantic.units)
-  # print(semantic.response.probability)
   return (semantic.response.probability)
 }
 
@@ -728,4 +716,4 @@ test.phoneme.output <- phoneme.activation(input.rain.sound)
 print(test.output)
 test.phonolexical.output <- phonolexical.activation(na.omit(test.output), input.rain.fish)
 print(test.phonolexical.output)
-semantic.activation(na.omit(test.phonolexical.output))
+semantic.activation(test.phonolexical.output)

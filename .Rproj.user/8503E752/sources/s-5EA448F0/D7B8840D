@@ -12,16 +12,16 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "7D0F264B",
+        "cacheKey" : "C9E2CA6C",
         "caption" : "semantic.connections",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=semantic.connections&cache_key=7D0F264B",
-        "displayedObservations" : 21,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=semantic.connections&cache_key=C9E2CA6C",
+        "displayedObservations" : "21",
         "environment" : "",
         "expression" : "semantic.connections",
         "object" : "semantic.connections",
-        "preview" : 0,
-        "totalObservations" : 21,
-        "variables" : 21
+        "preview" : "0",
+        "totalObservations" : "21",
+        "variables" : "14"
     },
     "read_only" : false,
     "read_only_alternatives" : [
