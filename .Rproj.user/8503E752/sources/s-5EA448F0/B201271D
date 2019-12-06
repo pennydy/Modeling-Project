@@ -12,16 +12,16 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "5C19A663",
+        "cacheKey" : "1104F496",
         "caption" : "consonant.connections",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=consonant.connections&cache_key=5C19A663",
-        "displayedObservations" : 24,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=consonant.connections&cache_key=1104F496",
+        "displayedObservations" : "24",
         "environment" : "",
         "expression" : "consonant.connections",
         "object" : "consonant.connections",
-        "preview" : 0,
-        "totalObservations" : 24,
-        "variables" : 13
+        "preview" : "0",
+        "totalObservations" : "24",
+        "variables" : "17"
     },
     "read_only" : false,
     "read_only_alternatives" : [
