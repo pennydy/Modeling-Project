@@ -448,69 +448,70 @@ phonolexical.connections <- matrix(
 # Meanwhile, it also send feedback signals to nodes at the phonolexical level
 # compare the target to the competitor to simulate the growth curve
 
+s <- 0.1
 # tree
 tree.word <-
-  c(1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(1, s, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # shu
-shu.word <-
-  c(-1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+# shu.word <-
+#   c(-1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # tu
 book.word <-
-  c(-1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, s, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # eye
 eye.word <-
-  c(-1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, 1, s, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # mu
-mu.word <-
-  c(-1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+# mu.word <-
+#   c(-1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # lu
 wood.word <-
-  c(-1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, s, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # dam
 dam.word <-
-  c(-1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, 1, s, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # ba
-ba.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+# ba.word <-
+#   c(-1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # wa
 scar.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, s, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # arm
 arm.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, s, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # bi
-bi.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+# bi.word <-
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # mi
 coin.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, s, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # rain
 rain.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, s, -1, -1, -1, -1, -1, -1, -1)
 # yu
-yu.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1)
-# gu
+# yu.word <-
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1)
+# fish
 fish.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, s, 1, -1, -1, -1, -1, -1, -1)
 # toe
 toe.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, s, -1, -1, -1, -1)
 # zhi
-zhi.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1)
+# zhi.word <-
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1)
 # chi
 mole.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, s, 1, -1, -1, -1)
 # fee
 fee.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, s, -1)
 # fei
-fei.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1)
+# fei.word <-
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1)
 # bei
 lung.word <-
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1)
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, s, 1)
 
 
 
@@ -699,17 +700,17 @@ semantic.activation <- function(input){
       # the node for the Mandarin word (e.g. yu) should be connected to both nodes (target, rain
       # and competetitor, fish) at the semantic layer 
       # print(semantic.connections[, n])
-      excitatory.input <- c()
-      for (i in 1:21){
-        if (i %% 3 == 2){
-          excitatory.input[i - 1] <- semantic.connections[i, n] * input.weight
-          excitatory.input[i + 1] <- semantic.connections[i, n] * input.weight
-        }
-        excitatory.input[i] <- semantic.connections[i, n] * input.weight
-        print(excitatory.input)
-        }
-      # excitatory.input <- semantic.connections[, n] * input.weight
-      # print(excitatory.input)
+      # excitatory.input <- c()
+      # for (i in 1:21){
+      #   if (i %% 3 == 2){
+      #     excitatory.input[i - 1] <- semantic.connections[i, n] * input.weight
+      #     excitatory.input[i + 1] <- semantic.connections[i, n] * input.weight
+      #   }
+      #   excitatory.input[i] <- semantic.connections[i, n] * input.weight
+      #   print(excitatory.input)
+      #   }
+      excitatory.input <- semantic.connections[, n] * input.weight
+      print(excitatory.input)
       semantic.units[n] <- semantic.units[n] + sum(excitatory.input)
       # print(semantic.units)
       if(semantic.units[n] < 0){
@@ -733,10 +734,18 @@ semantic.activation <- function(input){
   return (semantic.response.probability)
 }
 
+visual.world <- function(auditory.input, visual.input){
+  phoneme.output <- phoneme.activation(auditory.input)
+  phonolexical.output <- phonolexical.activation(na.omit(phoneme.output), visual.input)
+  semantic.output <- semantic.activation(phonolexical.output)
+  return(semantic.output)
+}
 
-test.phoneme.output <- phoneme.activation(input.rain.sound)
-print(test.phoneme.output)
-test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output), input.rain.fish)
-print(test.phonolexical.output)
-semantic.activation(test.phonolexical.output)
+visual.world(input.rain.sound, input.rain.fish)
+
+# test.phoneme.output <- phoneme.activation(input.rain.sound)
+# print(test.phoneme.output)
+# test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output), input.rain.fish)
+# print(test.phonolexical.output)
+# semantic.activation(test.phonolexical.output)
 
