@@ -448,7 +448,7 @@ phonolexical.connections <- matrix(
 # Meanwhile, it also send feedback signals to nodes at the phonolexical level
 # compare the target to the competitor to simulate the growth curve
 
-s <- 0.1
+s <- 0.5
 # tree
 tree.word <-
   c(1, s, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
@@ -573,36 +573,41 @@ input.rain.fish <- c(0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
 
 
 # building the model
+# a vector to record the activity each consonant/vowel
+# consonant.units <- rep(0, 19)
+# vowel.units <- rep(0,12)
 phoneme.excitatory.weight <- 0.5
 phoneme.inhibitory.weight <- -0.1
 
+# a vector to record the activity of each CCVVCC word
+# phonolexical.units <- rep(0,21)
 phonolexical.excitatory.weight <- 0.5
 phonolexical.inhibitory.weight <- -0.01
 eng.excitatory.weight <- 0.4
 ma.excitatory.weight <- 0.3
 
+# semantic.units <- rep(0,14)
 semantic.excitatory.weight <- 0.5
 semantic.inhibitory.weight <- -0.1
 
-cycles <- 1
+cycles <- 10
 
 # activation function at the phoneme level
 phoneme.activation <- function(input){
   phoneme.output <- c()
-  
   for(i in 1:6){
     phoneme <- na.omit(input[i])
     if (i == 3 || i == 4) {
       is.consonant <- FALSE
+      # phoneme.units <- vowel.units
       num <- 12
     } else {
       is.consonant <- TRUE
+      # phoneme.units <- consonant.units
       num <- 19
     }
-    
-    # a vector to record the activity each phoneme
     phoneme.units <- rep(0,num)
-    for(cycle in 1:cycles){
+    for (cycle in cycles){
       input.weight <- phoneme * phoneme.excitatory.weight
       for (n in 1:num){
         # if it is a consonant
@@ -649,9 +654,8 @@ phoneme.activation <- function(input){
 # both the English and the Mandarin word for it); 2. phonemic activation
 # output of the phonolexical level: how likely it is to be one of the 21 words (a vector of probabilities)
 phonolexical.activation <- function(phoneme.input, visual.input){
-  # a vector to record the activity of each CCVVCC word
   phonolexical.units <- rep(0,21)
-  for(cycle in 1:cycles){
+  for (cycle in 1:cycles){
     phoneme.input.weight <- phoneme.input * phonolexical.excitatory.weight
     for (n in 1:21){
       # excitatory inputs include both the output of the phoneme level
@@ -667,7 +671,7 @@ phonolexical.activation <- function(phoneme.input, visual.input){
         phonolexical.units[n] <- phonolexical.units[n] + visual.input[index] * eng.excitatory.weight
         phonolexical.units[n-1] <- phonolexical.units[n-1] + visual.input[index] * ma.excitatory.weight
       }
-      print(phonolexical.units)
+      # print(phonolexical.units)
       if(phonolexical.units[n] < 0){
         phonolexical.units[n] <- 0
       }
@@ -682,35 +686,26 @@ phonolexical.activation <- function(phoneme.input, visual.input){
         phonolexical.units[n] <- 0
       }
     }
-    print(phonolexical.units)
+    # print(phonolexical.units)
+    # print(phonolexical.response.probability)
   }
   # the response probability for words at phonolexical level
   phonolexical.response.probability <- phonolexical.units / sum(phonolexical.units)
-  # print(phonolexical.response.probability)
   return (phonolexical.response.probability)
 }
 
 # a vector to record the activity of each word at the semantic level
 semantic.activation <- function(input){
   semantic.units <- rep(0,14)
-  for(cycle in 1:cycles){
+  for (cycle in 1:cycles){
     input.weight <- input * semantic.excitatory.weight
-    print(input.weight)
+    # print(input.weight)
     for (n in 1:14){
       # the node for the Mandarin word (e.g. yu) should be connected to both nodes (target, rain
-      # and competetitor, fish) at the semantic layer 
-      # print(semantic.connections[, n])
-      # excitatory.input <- c()
-      # for (i in 1:21){
-      #   if (i %% 3 == 2){
-      #     excitatory.input[i - 1] <- semantic.connections[i, n] * input.weight
-      #     excitatory.input[i + 1] <- semantic.connections[i, n] * input.weight
-      #   }
-      #   excitatory.input[i] <- semantic.connections[i, n] * input.weight
-      #   print(excitatory.input)
-      #   }
+      # and competetitor, fish) at the semantic layer -> change the representation of the lexical
+      # nodes
       excitatory.input <- semantic.connections[, n] * input.weight
-      print(excitatory.input)
+      # print(excitatory.input)
       semantic.units[n] <- semantic.units[n] + sum(excitatory.input)
       # print(semantic.units)
       if(semantic.units[n] < 0){
@@ -728,13 +723,15 @@ semantic.activation <- function(input){
         semantic.units[n] <- 0
       }
     }
+    print(semantic.units/sum(semantic.units))
+    # the response probability for words at semantic level
   }
-  # the response probability for words at semantic level
   semantic.response.probability <- semantic.units / sum(semantic.units)
   return (semantic.response.probability)
 }
 
 visual.world <- function(auditory.input, visual.input){
+  # ---> fix the iteration!!!
   phoneme.output <- phoneme.activation(auditory.input)
   phonolexical.output <- phonolexical.activation(na.omit(phoneme.output), visual.input)
   semantic.output <- semantic.activation(phonolexical.output)
