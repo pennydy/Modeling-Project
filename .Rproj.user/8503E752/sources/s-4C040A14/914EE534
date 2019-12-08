@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575771716430.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "914EE534",
+    "lastKnownWriteTime" : 2318330701707771259,
+    "last_content_update" : 1575771716430,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "48FFF487",
+        "caption" : "phonolexical.connections",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=phonolexical.connections&cache_key=48FFF487",
+        "displayedObservations" : 100,
+        "environment" : "",
+        "expression" : "phonolexical.connections",
+        "object" : "phonolexical.connections",
+        "preview" : 0,
+        "totalObservations" : 100,
+        "variables" : 21
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
