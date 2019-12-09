@@ -600,7 +600,10 @@ semantic.units <- rep(0,14)
 semantic.excitatory.weight <- 0.5
 semantic.inhibitory.weight <- -0.1
 
-cycles <- 1
+
+visual.excitatory.weight <- 1
+
+cycles <- 5
 
 # activation function at the phoneme level
 phoneme.activation <- function(sound.input, phonolexical.feedback){
@@ -682,7 +685,7 @@ phoneme.activation <- function(sound.input, phonolexical.feedback){
 # inputs of the phonolexical level: 1. semantic activation (assuming seeing the picture will activate
 # both the English and the Mandarin word for it); 2. phonemic activation
 # output of the phonolexical level: how likely it is to be one of the 21 words (a vector of probabilities)
-phonolexical.activation <- function(phoneme.input, visual.input){
+phonolexical.activation <- function(phoneme.input, semantic.input){
   # phonolexical.units <- rep(0,21)
   for (cycle in 1:cycles){
     phoneme.input.weight <- phoneme.input * phonolexical.excitatory.weight
@@ -699,12 +702,12 @@ phonolexical.activation <- function(phoneme.input, visual.input){
     for (n in 1:21){
       if (n %% 3 == 1){
         index <- (n %/% 3) * 2 + 1
-        phonolexical.units[n] <- phonolexical.units[n] + visual.input[index] * eng.excitatory.weight
-        phonolexical.units[n+1] <- phonolexical.units[n+1] + visual.input[index] * ma.excitatory.weight 
+        phonolexical.units[n] <- phonolexical.units[n] + semantic.input[index] * eng.excitatory.weight
+        phonolexical.units[n+1] <- phonolexical.units[n+1] + semantic.input[index] * ma.excitatory.weight 
       } else if (n %% 3 == 0) {
         index <- (n %/% 3) * 2
-        phonolexical.units[n] <- phonolexical.units[n] + visual.input[index] * eng.excitatory.weight
-        phonolexical.units[n-1] <- phonolexical.units[n-1] + visual.input[index] * ma.excitatory.weight
+        phonolexical.units[n] <- phonolexical.units[n] + semantic.input[index] * eng.excitatory.weight
+        phonolexical.units[n-1] <- phonolexical.units[n-1] + semantic.input[index] * ma.excitatory.weight
       }
       if(phonolexical.units[n] < 0){
         phonolexical.units[n] <- 0
@@ -731,16 +734,16 @@ phonolexical.activation <- function(phoneme.input, visual.input){
 }
 
 # a vector to record the activity of each word at the semantic level
-semantic.activation <- function(input){
+semantic.activation <- function(phonolexical.input, visual.input){
   # semantic.units <- rep(0,14)
   for (cycle in 1:cycles){
-    input.weight <- input * semantic.excitatory.weight
-    print(input.weight)
+    input.weight <- phonolexical.input * semantic.excitatory.weight
+    # print(input.weight)
     for (n in 1:14){
       excitatory.input <- semantic.connections[, n] * input.weight
-      print(excitatory.input)
+      # print(excitatory.input)
       semantic.units[n] <- semantic.units[n] + sum(excitatory.input)
-      print(semantic.units)
+      # print(semantic.units)
       if(semantic.units[n] < 0){
         semantic.units[n] <- 0
       }
@@ -756,7 +759,9 @@ semantic.activation <- function(input){
         semantic.units[n] <- 0
       }
     }
-    # print(semantic.units/sum(semantic.units))
+    
+    semantic.units <- semantic.units + visual.input * visual.excitatory.weight
+    print(semantic.units/sum(semantic.units))
     # the response probability for words at semantic level
   }
   semantic.response.probability <- semantic.units / sum(semantic.units)
@@ -775,17 +780,22 @@ semantic.activation <- function(input){
 # visual.world(input.rain.sound, input.rain.fish)
 # visual.world(input.rain.sound, input.rain.tree)
 
+
 test.phonolexical.output <- rep(0, 21)
+test.visual.only <- semantic.activation(test.phonolexical.output, input.rain.fish)
+print(test.visual.only)
+semantic.units <- test.visual.only$units
+
 test.phoneme.output <- phoneme.activation(input.rain.sound, test.phonolexical.output)
 print(test.phoneme.output)
 all.phoneme.units <- test.phoneme.output$units
 
-test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output$prob), input.rain.fish)
+test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output$prob), test.visual.only$prob)
 # test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output$prob), input.rain.tree)
 print(test.phonolexical.output) 
 phonolexical.units <- test.phonolexical.output$units
 
-test.semantic.output <- semantic.activation(test.phonolexical.output$prob)
+test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.rain.fish)
 print(test.semantic.output)
 semantic.units <- test.semantic.output$units
 
@@ -793,8 +803,9 @@ test.phoneme.feedback.output <- phoneme.activation(input.empty.sound, test.phono
 print(test.phoneme.feedback.output)
 # since the picture is still being displayed
 test.phonolexical.feedback.output <- phonolexical.activation(na.omit(test.phoneme.feedback.output$prob),
-                                                             input.rain.fish)
+                                                             test.semantic.output$prob)
 print(test.phonolexical.feedback.output)
-test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob)
+test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
+                                                  input.rain.fish)
 print(test.semantic.final.output)
 
