@@ -12,9 +12,9 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "C9E2CA6C",
+        "cacheKey" : "456F5C24",
         "caption" : "semantic.connections",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=semantic.connections&cache_key=C9E2CA6C",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=semantic.connections&cache_key=456F5C24",
         "displayedObservations" : "21",
         "environment" : "",
         "expression" : "semantic.connections",
@@ -26,7 +26,7 @@
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 3,
+    "relative_order" : 2,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_dataframe"

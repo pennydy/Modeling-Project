@@ -12,16 +12,16 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "48FFF487",
+        "cacheKey" : "E8D3C3B7",
         "caption" : "phonolexical.connections",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=phonolexical.connections&cache_key=48FFF487",
-        "displayedObservations" : 100,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=phonolexical.connections&cache_key=E8D3C3B7",
+        "displayedObservations" : "100",
         "environment" : "",
         "expression" : "phonolexical.connections",
         "object" : "phonolexical.connections",
-        "preview" : 0,
-        "totalObservations" : 100,
-        "variables" : 21
+        "preview" : "0",
+        "totalObservations" : "100",
+        "variables" : "21"
     },
     "read_only" : false,
     "read_only_alternatives" : [
