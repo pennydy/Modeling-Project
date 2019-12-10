@@ -447,7 +447,7 @@ phonolexical.connections <- matrix(
 # Meanwhile, it also send feedback signals to nodes at the phonolexical level
 # compare the target to the competitor to simulate the growth curve
 
-overlap <- 0.5
+overlap <- 1
 # tree
 tree.word <-
   c(1, overlap, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
@@ -554,6 +554,15 @@ input.e <- c(c(1, 0), c(0, 1), c(1, 0, 0), c(0, 1, 0, 0))
 # input: ɪ
 input.ɪ <- c(c(0, 1), c(0, 1), c(1, 0, 0), c(1, 0, 0, 0))
 
+# input: ʃ
+input.ʃ <- c(c(0, 1),
+             c(0, 1),
+             c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+             c(0, 0, 0, 0, 1, 0, 0, 0, 0))
+
+# input: i
+input.i <- c(c(1, 0), c(0, 1), c(1, 0, -1), c(1, 0, 0, 0))
+
 # input: empty consonant
 input.empty.consonant <- c(c(0, 0),
                            c(0, 0),
@@ -573,9 +582,18 @@ input.rain.sound <- cbind.fill(
   fill=NA
 )
 
+input.tree.sound <- cbind.fill(
+  input.ʃ, input.r, input.i, input.empty.vowel, input.empty.consonant, input.empty.consonant,
+  fill=NA
+)
+
 input.rain.fish <- c(0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
 input.rain.tree <- c(1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 
+input.tree.book <- c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+input.tree.eye <- c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+input.tree.wood <- c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+input.tree.dam <- c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 # building the model
 # a vector to record the activity each consonant/vowel
@@ -585,25 +603,25 @@ all.phoneme.units <- cbind.fill(
   c(rep(0,19)), c(rep(0,19)), c(rep(0,12)), c(rep(0,12)), c(rep(0,19)), c(rep(0,19)),
   fill=NA
 )
-phoneme.excitatory.weight <- 0.5
+phoneme.excitatory.weight <- 0.4
 phoneme.inhibitory.weight <- -0.1
 
 # a vector to record the activity of each of the 21 CCVVCC representations at the phonolexical layer
 phonolexical.units <- rep(0,21)
-phonolexical.excitatory.weight <- 0.5
-phonolexical.inhibitory.weight <- -0.01
-eng.excitatory.weight <- 0.4
-ma.excitatory.weight <- 0.3
+phonolexical.excitatory.weight <- 0.4
+phonolexical.inhibitory.weight <- -0.1
+eng.excitatory.weight <- 0.2
+ma.excitatory.weight <- 0.15
 
 # a vector to record the activity of each of the 14 words at the semantic layer
 semantic.units <- rep(0,14)
-semantic.excitatory.weight <- 0.5
+semantic.excitatory.weight <- 0.4
 semantic.inhibitory.weight <- -0.1
 
 
 visual.excitatory.weight <- 1
 
-cycles <- 5
+cycles <- 10
 
 # activation function at the phoneme level
 phoneme.activation <- function(sound.input, phonolexical.feedback){
@@ -699,18 +717,30 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
         phonolexical.units[n] <- 0
       }
     }
-    for (n in 1:21){
-      if (n %% 3 == 1){
-        index <- (n %/% 3) * 2 + 1
-        phonolexical.units[n] <- phonolexical.units[n] + semantic.input[index] * eng.excitatory.weight
-        phonolexical.units[n+1] <- phonolexical.units[n+1] + semantic.input[index] * ma.excitatory.weight 
-      } else if (n %% 3 == 0) {
-        index <- (n %/% 3) * 2
-        phonolexical.units[n] <- phonolexical.units[n] + semantic.input[index] * eng.excitatory.weight
-        phonolexical.units[n-1] <- phonolexical.units[n-1] + semantic.input[index] * ma.excitatory.weight
-      }
-      if(phonolexical.units[n] < 0){
-        phonolexical.units[n] <- 0
+    # for (n in 1:21){
+    #   if (n %% 3 == 1){
+    #     index <- (n %/% 3) * 2 + 1
+    #     phonolexical.units[n] <- phonolexical.units[n] + semantic.input[index] * eng.excitatory.weight
+    #     phonolexical.units[n+1] <- phonolexical.units[n+1] + semantic.input[index] * ma.excitatory.weight
+    #   } else if (n %% 3 == 0) {
+    #     index <- (n %/% 3) * 2
+    #     phonolexical.units[n] <- phonolexical.units[n] + semantic.input[index] * eng.excitatory.weight
+    #     phonolexical.units[n-1] <- phonolexical.units[n-1] + semantic.input[index] * ma.excitatory.weight
+    #   }
+    #   if(phonolexical.units[n] < 0){
+    #     phonolexical.units[n] <- 0
+    #   }
+    # }
+    for (n in 1:14){
+      # in the semantic array, this is the English target
+      if (n %% 2 == 1){
+        index <- (n %/% 2) * 3 + 1
+        phonolexical.units[index] <- phonolexical.units[index] + semantic.input[n] * eng.excitatory.weight
+        phonolexical.units[index + 1] <- phonolexical.units[index + 1] + semantic.input[n] * ma.excitatory.weight
+      } else {
+        index <- (n %/% 2) * 3
+        phonolexical.units[index] <- phonolexical.units[index] + semantic.input[n] * eng.excitatory.weight
+        phonolexical.units[index - 1] <- phonolexical.units[index - 1]+ semantic.input[n] * ma.excitatory.weight
       }
     }
     inhibitory.activity <- numeric()
@@ -780,32 +810,93 @@ semantic.activation <- function(phonolexical.input, visual.input){
 # visual.world(input.rain.sound, input.rain.fish)
 # visual.world(input.rain.sound, input.rain.tree)
 
-
+# the picture is shown -> activates the semantic layer
 test.phonolexical.output <- rep(0, 21)
-test.visual.only <- semantic.activation(test.phonolexical.output, input.rain.fish)
+# test.visual.only <- semantic.activation(test.phonolexical.output, input.rain.fish)
+test.visual.only <- semantic.activation(test.phonolexical.output, input.rain.tree)
 print(test.visual.only)
 semantic.units <- test.visual.only$units
 
+# meanwhile, the participant hears the auditory stimulus -> activates the phoneme layer
 test.phoneme.output <- phoneme.activation(input.rain.sound, test.phonolexical.output)
 print(test.phoneme.output)
 all.phoneme.units <- test.phoneme.output$units
 
+# then, the phonolexical layer receives inputs from both the semantic layer and the phoneme layer
 test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output$prob), test.visual.only$prob)
-# test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output$prob), input.rain.tree)
-print(test.phonolexical.output) 
+print(test.phonolexical.output)
 phonolexical.units <- test.phonolexical.output$units
 
-test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.rain.fish)
+# then the phonolexical layer sends signals to the semantic layer and feedbacks to the phoneme layer
+# so the semantic layer receives both signals from the phonolexical layer and the visual input (since
+# the picture is still being displayed)
+# test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.rain.fish)
+test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.rain.tree)
 print(test.semantic.output)
 semantic.units <- test.semantic.output$units
 
+# and the phoneme layer receives signals ONLY from the feedback of the phonolexical layer
 test.phoneme.feedback.output <- phoneme.activation(input.empty.sound, test.phonolexical.output$prob)
 print(test.phoneme.feedback.output)
-# since the picture is still being displayed
+# phonolexical layer again receives the updated phoneme activation and the updated semantic activation
 test.phonolexical.feedback.output <- phonolexical.activation(na.omit(test.phoneme.feedback.output$prob),
                                                              test.semantic.output$prob)
 print(test.phonolexical.feedback.output)
+
+# final output of the semantic layer
+# test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
+# input.rain.fish)
 test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
-                                                  input.rain.fish)
+                                                  input.rain.tree)
 print(test.semantic.final.output)
 
+
+# ------------------------tree/book and tree/eye pairs-------------------------------
+# the picture is shown -> activates the semantic layer
+# test.phonolexical.output <- rep(0, 21)
+# # test.visual.only <- semantic.activation(test.phonolexical.output, input.tree.eye)
+# test.visual.only <- semantic.activation(test.phonolexical.output, input.tree.book)
+# # test.visual.only <- semantic.activation(test.phonolexical.output, input.tree.wood)
+# # test.visual.only <- semantic.activation(test.phonolexical.output, input.tree.dam)
+# print(test.visual.only)
+# semantic.units <- test.visual.only$units
+# 
+# # meanwhile, the participant hears the auditory stimulus -> activates the phoneme layer
+# test.phoneme.output <- phoneme.activation(input.tree.sound, test.phonolexical.output)
+# print(test.phoneme.output)
+# all.phoneme.units <- test.phoneme.output$units
+# 
+# # then, the phonolexical layer receives inputs from both the semantic layer and the phoneme layer
+# test.phonolexical.output <- phonolexical.activation(na.omit(test.phoneme.output$prob), test.visual.only$prob)
+# print(test.phonolexical.output) 
+# phonolexical.units <- test.phonolexical.output$units
+# 
+# # then the phonolexical layer sends signals to the semantic layer and feedbacks to the phoneme layer
+# # so the semantic layer receives both signals from the phonolexical layer and the visual input (since
+# # the picture is still being displayed)
+# # test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.tree.eye)
+# test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.tree.book)
+# # test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.tree.wood)
+# # test.semantic.output <- semantic.activation(test.phonolexical.output$prob, input.tree.dam)
+# print(test.semantic.output)
+# semantic.units <- test.semantic.output$units
+# 
+# # and the phoneme layer receives signals ONLY from the feedback of the phonolexical layer
+# test.phoneme.feedback.output <- phoneme.activation(input.empty.sound, test.phonolexical.output$prob)
+# print(test.phoneme.feedback.output)
+# # phonolexical layer again receives the updated phoneme activation and the updated semantic activation
+# test.phonolexical.feedback.output <- phonolexical.activation(na.omit(test.phoneme.feedback.output$prob),
+#                                                              test.semantic.output$prob)
+# print(test.phonolexical.feedback.output)
+# 
+# # final output of the semantic layer
+# # test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
+# # input.tree.eye)
+# test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
+#                                                   input.tree.book)
+# # test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
+#                                                   # input.tree.wood)
+# # test.semantic.final.output <- semantic.activation(test.phonolexical.feedback.output$prob,
+#                                                   # input.tree.dam)
+# print(test.semantic.final.output)
+# 
