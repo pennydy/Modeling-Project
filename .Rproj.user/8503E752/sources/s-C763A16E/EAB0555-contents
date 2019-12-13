@@ -737,7 +737,7 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
     }
   }
   # cat("semantic.feedback", semantic.feedback)
-  
+
   inhibitory.activity <- numeric()
   for(n in 1:21){
     inhibitory.activity[n] <- sum(phonolexical.units[-n] * phonolexical.inhibitory.weight)
@@ -782,13 +782,13 @@ semantic.activation <- function(phonolexical.input, visual.input){
       semantic.units[n] <- 0
     }
   }
-  # 
-  #   for(n in 1:14){
-  #     semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * semantic.connections[n, ])
-  #     if(semantic.units[n] < 0){
-  #       semantic.units[n] <- 0
-  #     }
-  #   }
+# 
+#   for(n in 1:14){
+#     semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * semantic.connections[n, ])
+#     if(semantic.units[n] < 0){
+#       semantic.units[n] <- 0
+#     }
+#   }
   semantic.units <- semantic.units + visual.input * visual.excitatory.weight
   for(n in 1:14){
     if(semantic.units[n] < 0){
@@ -826,7 +826,7 @@ visual.world <- function(auditory.input, visual.input){
     if (cycle <= 5){
       phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
     } else {
-      phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
+    phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
     }
     all.phoneme.units <- phoneme.output$units
     # cat("phoneme.output.prob", phoneme.output$prob)
@@ -860,3 +860,5 @@ semantic.units <- rep(0,14)
 # visual.world(input.tree.sound, input.tree.book)
 # visual.world(input.tree.sound, input.tree.dam)
 # visual.world(input.tree.sound, input.tree.eye)
+
+             
