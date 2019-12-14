@@ -129,6 +129,7 @@ h <- c(c(-1, 1),
 consonant.connections <- matrix(
   c(m, l, p, b, w, g, k, s, ʃ, sh, ch, zh, f, d, r, n, ŋ, t, h), ncol = 19
 )
+consonant.connections[consonant.connections == -1] <- -0.8
 
 # each vowel is represented by 3 features:
 # 1. tenseness c(tense, lax)
@@ -176,6 +177,7 @@ o <- c(c(1, -1), c(1, -1), c(-1, -1, 1), c(-1, 1, -1, -1))
 vowel.connections <- matrix(
   c(ʊ, u, ab, af, i, ɪ, e, y, o, ɔ, ʌ, æ), ncol = 12
 )
+vowel.connections[vowel.connections == -1] <- -0.8
 
 # phono-lexical layer
 # the pronunciation of each word is represented as one-syllable (CCVVCC) pattern
@@ -523,7 +525,7 @@ semantic.connections <- matrix(
     rain.word, fish.word, toe.word, mole.word, fee.word, lung.word),
   ncol = 14
 )
-# semantic.connections[semantic.connections == -1] <- -0.8
+semantic.connections[semantic.connections == -1] <- -0.8
 
 
 
@@ -894,5 +896,5 @@ visual.world(input.rain.sound, input.rain.fish)
 visual.world(input.rain.sound, input.rain.tree)
 visual.world(input.tree.sound, input.tree.wood)
 visual.world(input.tree.sound, input.tree.book)
-# visual.world(input.tree.sound, input.tree.dam)
+visual.world(input.tree.sound, input.tree.dam)
 visual.world(input.tree.sound, input.tree.eye)
