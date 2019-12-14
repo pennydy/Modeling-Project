@@ -523,7 +523,7 @@ semantic.connections <- matrix(
     rain.word, fish.word, toe.word, mole.word, fee.word, lung.word),
   ncol = 14
 )
-semantic.connections[semantic.connections == -1] <- -0.8
+# semantic.connections[semantic.connections == -1] <- -0.8
 
 
 
@@ -603,23 +603,24 @@ all.phoneme.units <- cbind.fill(
   c(rep(0,19)), c(rep(0,19)), c(rep(0,12)), c(rep(0,12)), c(rep(0,19)), c(rep(0,19)),
   fill=NA
 )
-phoneme.excitatory.weight <- 0.6
-phoneme.inhibitory.weight <- -0.15
-phonolexical.to.phoneme.excitatory.weight <- 0.3
+phoneme.excitatory.weight <- 0.5
+phoneme.inhibitory.weight <- -0.1
+phonolexical.to.phoneme.excitatory.weight <- 0.6
+phonolexical.to.phoneme.inhibitory.weight <- -0.15
 
 # a vector to record the activity of each of the 21 CCVVCC representations at the phonolexical layer
 phonolexical.units <- rep(0,21)
-phonolexical.excitatory.weight <- 0.4
-phonolexical.inhibitory.weight <- -0.2
-semantic.to.phonolexical.excitatory.weight <- 0.2
+phonolexical.excitatory.weight <- 0.2
+phonolexical.inhibitory.weight <- -0.1
+semantic.to.phonolexical.excitatory.weight <- 0.8
+semantic.to.phonolexical.inhibitory.weight <- -0.005
 
 # a vector to record the activity of each of the 14 words at the semantic layer
 semantic.units <- rep(0,14)
-semantic.excitatory.weight <- 0.6
-semantic.inhibitory.weight <- -0.3
-
-
-visual.excitatory.weight <- 0.5
+semantic.excitatory.weight <- 0.5
+semantic.inhibitory.weight <- -0.1
+visual.excitatory.weight <- 0.3
+# visual.inhibitory.weight <- -0.17
 
 cycles <- 30
 
@@ -657,6 +658,7 @@ phoneme.activation <- function(sound.input, phonolexical.input){
         phoneme.units[n,] <- 0
       }
     }
+  
     # inhibitory connection within the phoneme layer
     inhibitory.activity <- numeric()
     for(n in 1:num){
@@ -668,11 +670,8 @@ phoneme.activation <- function(sound.input, phonolexical.input){
         phoneme.units[n,] <- 0
       }
     }
-    # activation from the phonolexical layer feedback
     
-    # for(n in 1:21){
-    #   phonolexical.activity <- phonolexical.feedback[n] * phonolexical.connections[, n] * phonolexical.to.phoneme.excitatory.weight
-    # 
+    # activation from the phonolexical layer feedback
     if (i == 1 || i == 2){
       phoneme.units <- phoneme.units + phonolexical.feedback[((i-1)*19+1) : (i*19)]
     } else if (i == 3 || i == 4){
@@ -685,7 +684,17 @@ phoneme.activation <- function(sound.input, phonolexical.input){
         phoneme.units[n,] <- 0
       }
     }
-    # }
+    
+    inhibitory.activity <- numeric()
+    for(n in 1:num){
+      inhibitory.activity[n] <- sum(phoneme.units[-n,] * phonolexical.to.phoneme.inhibitory.weight)
+    }
+    phoneme.units <- phoneme.units + inhibitory.activity
+    for(n in 1:num){
+      if(phoneme.units[n,] < 0){
+        phoneme.units[n,] <- 0
+      }
+    }
     
     # print(phoneme.units)
     # the response probability for consonants
@@ -728,15 +737,6 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
       phonolexical.units[n] <- 0
     }
   }
-  semantic.feedback <- rep(0, 21)
-  for (n in 1:21){
-    semantic.feedback[n] <- sum(semantic.input * semantic.connections[n, ] * semantic.to.phonolexical.excitatory.weight)
-    phonolexical.units[n] <- phonolexical.units[n] + semantic.feedback[n]
-    if(phonolexical.units[n] < 0){
-      phonolexical.units[n] <- 0
-    }
-  }
-  # cat("semantic.feedback", semantic.feedback)
   
   inhibitory.activity <- numeric()
   for(n in 1:21){
@@ -750,6 +750,27 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
   }
   # print(phonolexical.units)
   
+
+  for (n in 1:21){
+    phonolexical.units[n] <- phonolexical.units[n] +
+      sum(semantic.input * semantic.connections[n, ] * semantic.to.phonolexical.excitatory.weight)
+    if(phonolexical.units[n] < 0){
+      phonolexical.units[n] <- 0
+    }
+  }
+  # cat("after semantic feedback", phonolexical.units)
+  
+  inhibitory.activity <- numeric()
+  for(n in 1:21){
+    inhibitory.activity[n] <- sum(phonolexical.units[-n] * semantic.to.phonolexical.inhibitory.weight)
+  }
+  phonolexical.units <- phonolexical.units + inhibitory.activity
+  for(n in 1:21){
+    if(phonolexical.units[n] < 0){
+      phonolexical.units[n] <- 0
+    }
+  }
+  
   # the response probability for words at phonolexical level
   phonolexical.response.probability <- phonolexical.units / sum(phonolexical.units)
   # print(phonolexical.response.probability)
@@ -761,7 +782,7 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
 # a vector to record the activity of each word at the semantic level
 semantic.activation <- function(phonolexical.input, visual.input){
   input.weight <- phonolexical.input * semantic.excitatory.weight
-  # print(input.weight)
+  # cat(input.weight, "input weight length", length(input.weight))
   for (n in 1:14){
     excitatory.input <- semantic.connections[, n] * input.weight
     # print(excitatory.input)
@@ -772,9 +793,11 @@ semantic.activation <- function(phonolexical.input, visual.input){
     }
   }
   # print(semantic.units)
+  # cat("semantic units after excitatory", semantic.units)
   inhibitory.activity <- numeric()
   for(n in 1:14){
     inhibitory.activity[n] <- sum(semantic.units[-n] * semantic.inhibitory.weight)
+    # cat("inhibitory", inhibitory.activity)
   }
   semantic.units <- semantic.units + inhibitory.activity
   for(n in 1:14){
@@ -782,13 +805,26 @@ semantic.activation <- function(phonolexical.input, visual.input){
       semantic.units[n] <- 0
     }
   }
-  # 
-  #   for(n in 1:14){
-  #     semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * semantic.connections[n, ])
-  #     if(semantic.units[n] < 0){
-  #       semantic.units[n] <- 0
-  #     }
+  
+  # for(n in 1:14){
+  #   semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * semantic.connections[, n])
+  #   if(semantic.units[n] < 0){
+  #     semantic.units[n] <- 0
   #   }
+  # }
+  # 
+  # inhibitory.activity <- numeric()
+  # for(n in 1:14){
+  #   inhibitory.activity[n] <- sum(semantic.units[-n] * visual.inhibitory.weight)
+  # }
+  # semantic.units <- semantic.units + inhibitory.activity
+  # for(n in 1:14){
+  #   if(semantic.units[n] < 0){
+  #     semantic.units[n] <- 0
+  #   }
+  # }
+  # cat("semantic units after visual", semantic.units)
+ 
   semantic.units <- semantic.units + visual.input * visual.excitatory.weight
   for(n in 1:14){
     if(semantic.units[n] < 0){
@@ -823,11 +859,11 @@ visual.world <- function(auditory.input, visual.input){
     # semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
     # semantic.units <- semantic.output$units
     
-    if (cycle <= 5){
-      phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
-    } else {
+    # if (cycle <= 5){
+      # phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
+    # } else {
       phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
-    }
+    # }
     all.phoneme.units <- phoneme.output$units
     # cat("phoneme.output.prob", phoneme.output$prob)
     
@@ -854,9 +890,9 @@ all.phoneme.units <- cbind.fill(
 phonolexical.units <- rep(0,21)
 # a vector to record the activity of each of the 14 words at the semantic layer
 semantic.units <- rep(0,14)
-# visual.world(input.rain.sound, input.rain.fish)
-# visual.world(input.rain.sound, input.rain.tree)
-# visual.world(input.tree.sound, input.tree.wood)
-# visual.world(input.tree.sound, input.tree.book)
+visual.world(input.rain.sound, input.rain.fish)
+visual.world(input.rain.sound, input.rain.tree)
+visual.world(input.tree.sound, input.tree.wood)
+visual.world(input.tree.sound, input.tree.book)
 # visual.world(input.tree.sound, input.tree.dam)
-# visual.world(input.tree.sound, input.tree.eye)
+visual.world(input.tree.sound, input.tree.eye)
