@@ -129,7 +129,7 @@ h <- c(c(-1, 1),
 consonant.connections <- matrix(
   c(m, l, p, b, w, g, k, s, ʃ, sh, ch, zh, f, d, r, n, ŋ, t, h), ncol = 19
 )
-consonant.connections[consonant.connections == -1] <- -0.8
+# consonant.connections[consonant.connections == -1] <- -0.8
 
 # each vowel is represented by 3 features:
 # 1. tenseness c(tense, lax)
@@ -177,7 +177,7 @@ o <- c(c(1, -1), c(1, -1), c(-1, -1, 1), c(-1, 1, -1, -1))
 vowel.connections <- matrix(
   c(ʊ, u, ab, af, i, ɪ, e, y, o, ɔ, ʌ, æ), ncol = 12
 )
-vowel.connections[vowel.connections == -1] <- -0.8
+# vowel.connections[vowel.connections == -1] <- -0.8
 
 # phono-lexical layer
 # the pronunciation of each word is represented as one-syllable (CCVVCC) pattern
@@ -412,9 +412,18 @@ fee <- c(
   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1))
 
-# fei
+# # fei
+# fei <- c(
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1),
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
+#   c(-1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1),
+#   c(-1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1),
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
+#   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1))
+
+# fei -> change it to rei (not a real word. just to test the phonolexical similarities for rain)
 fei <- c(
-  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1),
+  c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1),
   c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
   c(-1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1),
   c(-1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1),
@@ -444,7 +453,7 @@ phonolexical.connections <- matrix(
   ncol = 21
 )
 
-phonolexical.connections[phonolexical.connections == -1] <- -0.8
+# phonolexical.connections[phonolexical.connections == -1] <- -0.8
 
 
 # semantic layer: receives signals from the visual stimulus and the output from the phonolexical level.
@@ -525,7 +534,7 @@ semantic.connections <- matrix(
     rain.word, fish.word, toe.word, mole.word, fee.word, lung.word),
   ncol = 14
 )
-semantic.connections[semantic.connections == -1] <- -0.8
+# semantic.connections[semantic.connections == -1] <- -0.8
 
 
 
@@ -598,6 +607,7 @@ input.tree.book <- c(1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 input.tree.eye <- c(1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 input.tree.wood <- c(1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 input.tree.dam <- c(1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+input.rain.fei <- c(-1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1)
 
 # building the model
 # a vector to record the activity each consonant/vowel
@@ -622,7 +632,7 @@ semantic.units <- rep(0,14)
 semantic.excitatory.weight <- 0.5
 semantic.inhibitory.weight <- -0.1
 visual.excitatory.weight <- 0.3
-# visual.inhibitory.weight <- -0.17
+visual.inhibitory.weight <- -0.1
 
 cycles <- 30
 
@@ -808,31 +818,40 @@ semantic.activation <- function(phonolexical.input, visual.input){
     }
   }
   
-  # for(n in 1:14){
-  #   semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * semantic.connections[, n])
-  #   if(semantic.units[n] < 0){
-  #     semantic.units[n] <- 0
-  #   }
-  # }
-  # 
-  # inhibitory.activity <- numeric()
-  # for(n in 1:14){
-  #   inhibitory.activity[n] <- sum(semantic.units[-n] * visual.inhibitory.weight)
-  # }
-  # semantic.units <- semantic.units + inhibitory.activity
-  # for(n in 1:14){
-  #   if(semantic.units[n] < 0){
-  #     semantic.units[n] <- 0
-  #   }
-  # }
-  # cat("semantic units after visual", semantic.units)
- 
-  semantic.units <- semantic.units + visual.input * visual.excitatory.weight
+  for(n in 1:14){
+    # the target
+    if(n%%2 == 1){
+      index <- (n%/%2) * 3 + 1
+    semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * 
+                                                   (semantic.connections[index,] + semantic.connections[index+1,]))
+    } else{
+      index <- (n%/%2) * 3 
+      semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * 
+                                                     (semantic.connections[index,] + semantic.connections[index-1,]))
+    }
+    if(semantic.units[n] < 0){
+      semantic.units[n] <- 0
+    }
+  }
+
+  inhibitory.activity <- numeric()
+  for(n in 1:14){
+    inhibitory.activity[n] <- sum(semantic.units[-n] * visual.inhibitory.weight)
+  }
+  semantic.units <- semantic.units + inhibitory.activity
   for(n in 1:14){
     if(semantic.units[n] < 0){
       semantic.units[n] <- 0
     }
   }
+  # cat("semantic.units after inhibit", semantic.units)
+ 
+  # semantic.units <- semantic.units + visual.input * visual.excitatory.weight
+  # for(n in 1:14){
+  #   if(semantic.units[n] < 0){
+  #     semantic.units[n] <- 0
+  #   }
+  # }
   # the response probability for words at semantic level
   semantic.response.probability <- semantic.units / sum(semantic.units)
   semantic.result <- list("prob"=semantic.response.probability, "units"=semantic.units)
@@ -861,11 +880,11 @@ visual.world <- function(auditory.input, visual.input){
     # semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
     # semantic.units <- semantic.output$units
     
-    # if (cycle <= 5){
-      # phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
+    if (cycle <= 5){
+      phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
     # } else {
-      phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
-    # }
+    phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
+    }
     all.phoneme.units <- phoneme.output$units
     # cat("phoneme.output.prob", phoneme.output$prob)
     
@@ -898,3 +917,5 @@ visual.world(input.tree.sound, input.tree.wood)
 visual.world(input.tree.sound, input.tree.book)
 visual.world(input.tree.sound, input.tree.dam)
 visual.world(input.tree.sound, input.tree.eye)
+
+visual.world(input.rain.sound, input.rain.fei)
