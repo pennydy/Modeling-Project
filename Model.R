@@ -622,8 +622,9 @@ phonolexical.to.phoneme.inhibitory.weight <- -0.15
 
 # a vector to record the activity of each of the 21 CCVVCC representations at the phonolexical layer
 phonolexical.units <- rep(0,21)
-phonolexical.excitatory.weight <- 0.2
-phonolexical.inhibitory.weight <- -0.1
+phonolexical.excitatory.weight <- 0.6
+phonolexical.inhibitory.weight <- -0.15
+# semantic.to.phonolexical.excitatory.weight <- 0.8
 semantic.to.phonolexical.excitatory.weight <- 0.8
 semantic.to.phonolexical.inhibitory.weight <- -0.005
 
@@ -632,7 +633,7 @@ semantic.units <- rep(0,14)
 semantic.excitatory.weight <- 0.5
 semantic.inhibitory.weight <- -0.1
 visual.excitatory.weight <- 0.3
-visual.inhibitory.weight <- -0.1
+visual.inhibitory.weight <- -0.085
 
 cycles <- 30
 
@@ -744,11 +745,11 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
     # as well as the activation at the semantic level 
     phoneme.excitatory.input <- phonolexical.connections[, n] * phoneme.input.weight
     phonolexical.units[n] <- phonolexical.units[n] + sum(phoneme.excitatory.input)
-    # cat("phonolexical.unit before semantic feedback", phonolexical.units)
     if(phonolexical.units[n] < 0){
       phonolexical.units[n] <- 0
     }
   }
+  # cat("after phoneme intput excite", phonolexical.units)
   
   inhibitory.activity <- numeric()
   for(n in 1:21){
@@ -760,17 +761,21 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
       phonolexical.units[n] <- 0
     }
   }
-  # print(phonolexical.units)
+  # cat("after phoneme intput inhibit", phonolexical.units)
   
 
   for (n in 1:21){
+    # # this is the target English representation in the phonolexical layer
+    # if(n%/% 3 == 1){
+    #   
+    # }
     phonolexical.units[n] <- phonolexical.units[n] +
       sum(semantic.input * semantic.connections[n, ] * semantic.to.phonolexical.excitatory.weight)
     if(phonolexical.units[n] < 0){
       phonolexical.units[n] <- 0
     }
   }
-  # cat("after semantic feedback", phonolexical.units)
+  # cat("after semantic feedback excit", phonolexical.units)
   
   inhibitory.activity <- numeric()
   for(n in 1:21){
@@ -824,21 +829,24 @@ semantic.activation <- function(phonolexical.input, visual.input){
       index <- (n%/%2) * 3 + 1
     semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * 
                                                    (semantic.connections[index,] + semantic.connections[index+1,]))
-    } else{
+    }else{
       index <- (n%/%2) * 3 
       semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * 
                                                      (semantic.connections[index,] + semantic.connections[index-1,]))
     }
+  }
+  for(n in 1:14){
     if(semantic.units[n] < 0){
       semantic.units[n] <- 0
     }
   }
-
+  # cat("semantic.units after excit from visual", semantic.units)
   inhibitory.activity <- numeric()
   for(n in 1:14){
     inhibitory.activity[n] <- sum(semantic.units[-n] * visual.inhibitory.weight)
   }
   semantic.units <- semantic.units + inhibitory.activity
+  # cat("semantic.units after excite", semantic.units)
   for(n in 1:14){
     if(semantic.units[n] < 0){
       semantic.units[n] <- 0
@@ -880,11 +888,11 @@ visual.world <- function(auditory.input, visual.input){
     # semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
     # semantic.units <- semantic.output$units
     
-    if (cycle <= 5){
+    # if (cycle <= 5){
       phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
     # } else {
-    phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
-    }
+    # phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
+    # }
     all.phoneme.units <- phoneme.output$units
     # cat("phoneme.output.prob", phoneme.output$prob)
     
@@ -917,5 +925,6 @@ visual.world(input.tree.sound, input.tree.wood)
 visual.world(input.tree.sound, input.tree.book)
 visual.world(input.tree.sound, input.tree.dam)
 visual.world(input.tree.sound, input.tree.eye)
-
+ 
 visual.world(input.rain.sound, input.rain.fei)
+
