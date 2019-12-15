@@ -131,7 +131,7 @@ consonant.connections <- matrix(
 )
 # consonant.connections[consonant.connections == -1] <- -0.8
 
-# each vowel is represented by 3 features:
+# each vowel is represented by 4 features:
 # 1. tenseness c(tense, lax)
 # 2. roundedness: c(rounded, unrounded)
 # 3. frontness: c(front, central, back)
@@ -177,14 +177,11 @@ o <- c(c(1, -1), c(1, -1), c(-1, -1, 1), c(-1, 1, -1, -1))
 vowel.connections <- matrix(
   c(ʊ, u, ab, af, i, ɪ, e, y, o, ɔ, ʌ, æ), ncol = 12
 )
-# vowel.connections[vowel.connections == -1] <- -0.8
 
 # phono-lexical layer
 # the pronunciation of each word is represented as one-syllable (CCVVCC) pattern
-# -------> don't need to include the English word for the competitors? 
-# CCVVCC
-# Consonants: m, l, p (unaspirated), w, k (unaspirated), ʂ, ʈ͡ʂ, ʈ͡ʂ (unaspirated), f, d, ɹ, n, t
-# Vowels: ʊ, u, a (back), a (front), i, ɪ, e, y, o, ɔ, æ
+# Consonants: m, l, p, b, w, g, k, s, ʃ, sh, ch, zh, f, d, r, n, ŋ, t, h
+# Vowels: ʊ, u, a (back), a (front), i, ɪ, e, y, o, ɔ, ʌ, æ
 
 # tree
 tree <- c(
@@ -453,13 +450,10 @@ phonolexical.connections <- matrix(
   ncol = 21
 )
 
-# phonolexical.connections[phonolexical.connections == -1] <- -0.8
-
-
-# semantic layer: receives signals from the visual stimulus and the output from the phonolexical level.
-# Meanwhile, it also send feedback signals to nodes at the phonolexical level
-# compare the target to the competitor to simulate the growth curve
-
+# The 21 elements in the vector is organized in seven groups in the pattern of 
+# (English_target)-(Mandarin_homophones)-(English_competitor).
+# The parameter, overlap, determines the degree which the meaning will activate
+# the corresponding Mandarin pronunciation.
 overlap <- 1
 # tree
 tree.word <-
@@ -590,19 +584,29 @@ input.empty.sound <- cbind.fill(
   fill=NA
 )
 
-input.rain.sound <- cbind.fill(
-  input.r, input.empty.consonant, input.e, input.ɪ, input.n, input.empty.consonant,
-  fill=NA
-)
 
 input.tree.sound <- cbind.fill(
   input.ʃ, input.r, input.i, input.empty.vowel, input.empty.consonant, input.empty.consonant,
   fill=NA
 )
 
+input.eye.sound <- cbind.fill(
+  input.empty.consonant, input.empty.consonant, af, i, input.empty.consonant, input.empty.consonant,
+  fill=NA
+)
+
+input.rain.sound <- cbind.fill(
+  input.r, input.empty.consonant, input.e, input.ɪ, input.n, input.empty.consonant,
+  fill=NA
+)
 
 input.rain.fish <- c(-1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1)
 input.rain.tree <- c(1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1)
+input.rain.fei <- c(-1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1)
+
+input.eye.wood <- c(-1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+input.eye.book <- c(-1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+
 input.tree.book <- c(1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 input.tree.eye <- c(1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 input.tree.wood <- c(1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
@@ -921,10 +925,17 @@ phonolexical.units <- rep(0,21)
 semantic.units <- rep(0,14)
 visual.world(input.rain.sound, input.rain.fish)
 visual.world(input.rain.sound, input.rain.tree)
+
+visual.world(input.eye.sound, input.eye.wood)
+# visual.world(input.eye.sound, input.eye.book) error message, somewhere the sum of units is 0
+
+
 visual.world(input.tree.sound, input.tree.wood)
 visual.world(input.tree.sound, input.tree.book)
 visual.world(input.tree.sound, input.tree.dam)
 visual.world(input.tree.sound, input.tree.eye)
  
 visual.world(input.rain.sound, input.rain.fei)
+
+
 

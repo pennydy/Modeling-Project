@@ -12,9 +12,9 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "6502FFA3",
+        "cacheKey" : "966539E2",
         "caption" : "phonolexical.connections",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=phonolexical.connections&cache_key=6502FFA3",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=phonolexical.connections&cache_key=966539E2",
         "displayedObservations" : "100",
         "environment" : "",
         "expression" : "phonolexical.connections",
