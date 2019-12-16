@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576423774836.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "C50934F0",
+    "lastKnownWriteTime" : 4399513852,
+    "last_content_update" : 1576423774836,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "CD96D119",
+        "caption" : "consonant.connections",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=consonant.connections&cache_key=CD96D119",
+        "displayedObservations" : 24,
+        "environment" : "",
+        "expression" : "consonant.connections",
+        "object" : "consonant.connections",
+        "preview" : 0,
+        "totalObservations" : 24,
+        "variables" : 19
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

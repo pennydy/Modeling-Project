@@ -455,7 +455,7 @@ phonolexical.connections <- matrix(
 # The parameter, overlap, determines the degree which the meaning will activate
 # the corresponding Mandarin pronunciation.
 overlap <- 1
-# tree
+tree
 tree.word <-
   c(1, overlap, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 # shu
@@ -605,7 +605,7 @@ input.rain.tree <- c(1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1)
 input.rain.fei <- c(-1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1)
 
 input.eye.wood <- c(-1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
-input.eye.book <- c(-1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+input.eye.tree <- c(1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 
 input.tree.book <- c(1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
 input.tree.eye <- c(1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
@@ -641,14 +641,16 @@ visual.inhibitory.weight <- -0.085
 
 cycles <- 30
 
-# activation function at the phoneme level
+# inputs to the phonolexical level: 1. auditory input; 2. the output from the phonological layer
 phoneme.activation <- function(sound.input, phonolexical.input){
   phoneme.output <- c()
   phonolexical.feedback <- rep(0, 100)
   for(x in 1:100){
     phonolexical.feedback[x] <- sum(phonolexical.input * phonolexical.connections[x, ] * phonolexical.to.phoneme.excitatory.weight)
   }
-  # print(phonolexical.feedback)
+  
+  # because consonant and vowel have different connection units, go through each element
+  # of the CCVVCC sequence
   for(i in 1:6){
     phoneme <- na.omit(sound.input[i])
     if (i == 3 || i == 4) {
@@ -660,7 +662,8 @@ phoneme.activation <- function(sound.input, phonolexical.input){
     }
     phoneme.units <- na.omit(all.phoneme.units[i])
     input.weight <- phoneme * phoneme.excitatory.weight
-    # excitatory connection within the phoneme layer
+   
+     # excitatory connection from the auditory input 
     for (n in 1:num){
       # if it is a consonant
       if (is.consonant) {
@@ -676,7 +679,7 @@ phoneme.activation <- function(sound.input, phonolexical.input){
       }
     }
   
-    # inhibitory connection within the phoneme layer
+    # inhibitory connection from the auditory input 
     inhibitory.activity <- numeric()
     for(n in 1:num){
       inhibitory.activity[n] <- sum(phoneme.units[-n,] * phoneme.inhibitory.weight)
@@ -688,7 +691,7 @@ phoneme.activation <- function(sound.input, phonolexical.input){
       }
     }
     
-    # activation from the phonolexical layer feedback
+    # excitatory connections from the phonolexical layer feedback
     if (i == 1 || i == 2){
       phoneme.units <- phoneme.units + phonolexical.feedback[((i-1)*19+1) : (i*19)]
     } else if (i == 3 || i == 4){
@@ -702,6 +705,7 @@ phoneme.activation <- function(sound.input, phonolexical.input){
       }
     }
     
+    # inhibitory connections from the phonolexical layer feedback
     inhibitory.activity <- numeric()
     for(n in 1:num){
       inhibitory.activity[n] <- sum(phoneme.units[-n,] * phonolexical.to.phoneme.inhibitory.weight)
@@ -713,8 +717,7 @@ phoneme.activation <- function(sound.input, phonolexical.input){
       }
     }
     
-    # print(phoneme.units)
-    # the response probability for consonants
+    # the response probability of the phoneme
     phoneme.sum <- sum(phoneme.units)
     # when it is the empty consonant/vowel, keep them as zeros. Or the divider will be zero
     # when calculating the probability
@@ -732,29 +735,26 @@ phoneme.activation <- function(sound.input, phonolexical.input){
     }
     phoneme.output <- c(phoneme.output, phoneme.response.probability[,1])
   }
-  # print(phoneme.output)
-  # print(all.phoneme.units)
   phoneme.result <- list("prob" = phoneme.output, "units" = all.phoneme.units)
   return (phoneme.result)
 }
 
 
-# inputs of the phonolexical level: 1. semantic activation (assuming seeing the picture will activate
+# inputs to the phonolexical level: 1. semantic activation (assuming seeing the picture will activate
 # both the English and the Mandarin word for it); 2. phonemic activation
 # output of the phonolexical level: how likely it is to be one of the 21 words (a vector of probabilities)
 phonolexical.activation <- function(phoneme.input, semantic.input){
+  # excitatory connections from the phoneme layer
   phoneme.input.weight <- phoneme.input * phonolexical.excitatory.weight
   for (n in 1:21){
-    # excitatory inputs include both the output of the phoneme level
-    # as well as the activation at the semantic level 
     phoneme.excitatory.input <- phonolexical.connections[, n] * phoneme.input.weight
     phonolexical.units[n] <- phonolexical.units[n] + sum(phoneme.excitatory.input)
     if(phonolexical.units[n] < 0){
       phonolexical.units[n] <- 0
     }
   }
-  # cat("after phoneme intput excite", phonolexical.units)
   
+  # inhibitory connections from the phoneme layer
   inhibitory.activity <- numeric()
   for(n in 1:21){
     inhibitory.activity[n] <- sum(phonolexical.units[-n] * phonolexical.inhibitory.weight)
@@ -765,22 +765,17 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
       phonolexical.units[n] <- 0
     }
   }
-  # cat("after phoneme intput inhibit", phonolexical.units)
   
-
+  # excitatory connections from the semantic layer
   for (n in 1:21){
-    # # this is the target English representation in the phonolexical layer
-    # if(n%/% 3 == 1){
-    #   
-    # }
     phonolexical.units[n] <- phonolexical.units[n] +
       sum(semantic.input * semantic.connections[n, ] * semantic.to.phonolexical.excitatory.weight)
     if(phonolexical.units[n] < 0){
       phonolexical.units[n] <- 0
     }
   }
-  # cat("after semantic feedback excit", phonolexical.units)
   
+  # inhibitory connections from the semantic layer
   inhibitory.activity <- numeric()
   for(n in 1:21){
     inhibitory.activity[n] <- sum(phonolexical.units[-n] * semantic.to.phonolexical.inhibitory.weight)
@@ -794,31 +789,27 @@ phonolexical.activation <- function(phoneme.input, semantic.input){
   
   # the response probability for words at phonolexical level
   phonolexical.response.probability <- phonolexical.units / sum(phonolexical.units)
-  # print(phonolexical.response.probability)
   phonolexical.result <- list("prob"=phonolexical.response.probability, "units"=phonolexical.units)
   return(phonolexical.result)
 }
 
 
-# a vector to record the activity of each word at the semantic level
+# inputs to the semantic level: 1. visual inputs; 2. phonolexical layer output
 semantic.activation <- function(phonolexical.input, visual.input){
   input.weight <- phonolexical.input * semantic.excitatory.weight
-  # cat(input.weight, "input weight length", length(input.weight))
+  # excitatory connections from the phonological feedback
   for (n in 1:14){
     excitatory.input <- semantic.connections[, n] * input.weight
-    # print(excitatory.input)
     semantic.units[n] <- semantic.units[n] + sum(excitatory.input)
-    # print(semantic.units)
     if(semantic.units[n] < 0){
       semantic.units[n] <- 0
     }
   }
-  # print(semantic.units)
-  # cat("semantic units after excitatory", semantic.units)
+  
+  # inhibitory connections from the phonological feedback
   inhibitory.activity <- numeric()
   for(n in 1:14){
     inhibitory.activity[n] <- sum(semantic.units[-n] * semantic.inhibitory.weight)
-    # cat("inhibitory", inhibitory.activity)
   }
   semantic.units <- semantic.units + inhibitory.activity
   for(n in 1:14){
@@ -827,15 +818,17 @@ semantic.activation <- function(phonolexical.input, visual.input){
     }
   }
   
+  # excitatory connections from the visual inputs
   for(n in 1:14){
     # the target
     if(n%%2 == 1){
       index <- (n%/%2) * 3 + 1
-    semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * 
+    semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight *
                                                    (semantic.connections[index,] + semantic.connections[index+1,]))
-    }else{
-      index <- (n%/%2) * 3 
-      semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight * 
+    } # the competitor
+    else {
+      index <- (n%/%2) * 3
+      semantic.units[n] <- semantic.units[n] + sum(visual.input * visual.excitatory.weight *
                                                      (semantic.connections[index,] + semantic.connections[index-1,]))
     }
   }
@@ -844,26 +837,28 @@ semantic.activation <- function(phonolexical.input, visual.input){
       semantic.units[n] <- 0
     }
   }
-  # cat("semantic.units after excit from visual", semantic.units)
+  
+  # inhibitory connections from the visual inputs
   inhibitory.activity <- numeric()
   for(n in 1:14){
     inhibitory.activity[n] <- sum(semantic.units[-n] * visual.inhibitory.weight)
   }
   semantic.units <- semantic.units + inhibitory.activity
-  # cat("semantic.units after excite", semantic.units)
   for(n in 1:14){
     if(semantic.units[n] < 0){
       semantic.units[n] <- 0
     }
   }
-  # cat("semantic.units after inhibit", semantic.units)
  
+  # assume there is no excitatory/inhibitory connections from the visual inputs to the semantic
+  # layer
   # semantic.units <- semantic.units + visual.input * visual.excitatory.weight
   # for(n in 1:14){
   #   if(semantic.units[n] < 0){
   #     semantic.units[n] <- 0
   #   }
   # }
+  
   # the response probability for words at semantic level
   semantic.response.probability <- semantic.units / sum(semantic.units)
   semantic.result <- list("prob"=semantic.response.probability, "units"=semantic.units)
@@ -872,44 +867,45 @@ semantic.activation <- function(phonolexical.input, visual.input){
 
 visual.world <- function(auditory.input, visual.input){
   phonolexical.output <- list("prob" = rep(0, 21), "units" = rep(0,21))
-  
+  for (cycle in 1:10){
   phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
   all.phoneme.units <- phoneme.output$units
-  # cat("phoneme.output.prob", phoneme.output$prob)
   
   semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
   semantic.units <- semantic.output$units
-  # cat("semantic.output.prob", semantic.output$prob)
   
   phonolexical.output <- phonolexical.activation(na.omit(phoneme.output$prob), semantic.output$prob)
   phonolexical.units <- phonolexical.output$units
-  # cat("phonolexical.output.prob", phonolexical.output$prob)
-  
-  semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
-  semantic.units <- semantic.output$units
-  
-  for (cycle in 1:cycles){
-    # semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
-    # semantic.units <- semantic.output$units
-    
-    # if (cycle <= 5){
-      phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
-    # } else {
-    # phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
-    # }
-    all.phoneme.units <- phoneme.output$units
-    # cat("phoneme.output.prob", phoneme.output$prob)
-    
-    phonolexical.output <- phonolexical.activation(na.omit(phoneme.output$prob),
-                                                   semantic.output$prob)
-    phonolexical.units <- phonolexical.output$units
-    # cat("phonolexical.output.prob", phonolexical.output$prob)
-    
-    semantic.output <- semantic.activation(phonolexical.output$prob,
-                                           visual.input)
-    semantic.units <- semantic.output$units
-    print(semantic.output$prob)
+  print(semantic.output$prob)
   }
+  
+  # the result of the code can be used to simulate the scenario, assuming the auditory stimulus
+  # is only present during the first few cycles
+  # semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
+  # semantic.units <- semantic.output$units
+  # 
+  # for (cycle in 1:cycles){
+    # # semantic.output <- semantic.activation(phonolexical.output$prob, visual.input)
+    # # semantic.units <- semantic.output$units
+    # 
+    # # if (cycle <= 5){
+    #   phoneme.output <- phoneme.activation(auditory.input, phonolexical.output$prob)
+    # # } else {
+    # # phoneme.output <- phoneme.activation(input.empty.sound, phonolexical.output$prob)
+    # # }
+    # all.phoneme.units <- phoneme.output$units
+    # # cat("phoneme.output.prob", phoneme.output$prob)
+  #   
+  #   phonolexical.output <- phonolexical.activation(na.omit(phoneme.output$prob),
+  #                                                  semantic.output$prob)
+  #   phonolexical.units <- phonolexical.output$units
+  #   # cat("phonolexical.output.prob", phonolexical.output$prob)
+  #   
+  #   semantic.output <- semantic.activation(phonolexical.output$prob,
+  #                                          visual.input)
+  #   semantic.units <- semantic.output$units
+    # print(semantic.output$prob)
+  # }
   return(semantic.output)
 }
 
@@ -923,12 +919,90 @@ all.phoneme.units <- cbind.fill(
 phonolexical.units <- rep(0,21)
 # a vector to record the activity of each of the 14 words at the semantic layer
 semantic.units <- rep(0,14)
-visual.world(input.rain.sound, input.rain.fish)
-visual.world(input.rain.sound, input.rain.tree)
+
+# graphs 
+x <- -1
+result.comp <- c()
+result.target <- c()
+while(x<=1){
+  overlap <- x
+  x <- x+0.1
+  tree.word <-
+    c(1, overlap, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  rain.word <-
+    c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, overlap, -1, -1, -1, -1, -1, -1, -1)
+  fish.word <-
+    c(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, overlap, 1, -1, -1, -1, -1, -1, -1)
+  semantic.connections <- matrix(
+    c(tree.word, book.word, eye.word, wood.word, dam.word, scar.word, arm.word, coin.word, 
+      rain.word, fish.word, toe.word, mole.word, fee.word, lung.word),
+    ncol = 14
+  )
+  cat("overlap", overlap)
+  output <- visual.world(input.rain.sound, input.rain.tree)
+  all.phoneme.units <- cbind.fill(
+    c(rep(0,19)), c(rep(0,19)), c(rep(0,12)), c(rep(0,12)), c(rep(0,19)), c(rep(0,19)),
+    fill=NA
+  )
+  # a vector to record the activity of each of the 21 CCVVCC representations at the phonolexical layer
+  phonolexical.units <- rep(0,21)
+  # a vector to record the activity of each of the 14 words at the semantic layer
+  semantic.units <- rep(0,14)
+  result.comp <- c(result.comp, output$prob[10])
+  result.target <- c(result.target, output$prob[9])
+}
+result.comp
+result.target
+plot(seq(-1, 1, by=0.1), result.comp, xlab="overlap", ylab="Activation percentage", ylim=c(0.2,0.8))
+points(seq(-1, 1, by=0.1),result.target, col="red")
+legend("topleft",legend=c("target-rain","competitor-tree"), col=c("red","black"),lty=c(1,2), cex = 0.75)
+# lines(seq(-1, 1, by=0.1),  result.target,xlab="overlap", ylab="Target(rain) percentage", col="red")
+plot(seq(-1, 1, by=0.1), result.target,xlab="overlap", ylab="Target(rain) percentage")
+
 
 visual.world(input.eye.sound, input.eye.wood)
-# visual.world(input.eye.sound, input.eye.book) error message, somewhere the sum of units is 0
+visual.world(input.eye.sound, input.eye.tree) # error message, somewhere the sum of units is 0
 
+x=-1
+result.comp <- c()
+result.target <- c()
+while(x<=1){
+  overlap <- x
+  x <- x+0.1
+  tree.word <-
+    c(1, overlap, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  book.word <-
+    c(-1, overlap, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  eye.word <-
+    c(-1, -1, -1, 1, overlap, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  wood.word <-
+    c(-1, -1, -1, -1, overlap, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  dam.word <-
+    c(-1, -1, -1, -1, -1, -1, 1, overlap, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+  semantic.connections <- matrix(
+    c(tree.word, book.word, eye.word, wood.word, dam.word, scar.word, arm.word, coin.word, 
+      rain.word, fish.word, toe.word, mole.word, fee.word, lung.word),
+    ncol = 14
+  )
+  cat("overlap", overlap)
+  output <- visual.world(input.tree.sound, input.tree.dam)
+  all.phoneme.units <- cbind.fill(
+    c(rep(0,19)), c(rep(0,19)), c(rep(0,12)), c(rep(0,12)), c(rep(0,19)), c(rep(0,19)),
+    fill=NA
+  )
+  # a vector to record the activity of each of the 21 CCVVCC representations at the phonolexical layer
+  phonolexical.units <- rep(0,21)
+  # a vector to record the activity of each of the 14 words at the semantic layer
+  semantic.units <- rep(0,14)
+  result.comp <- c(result.comp, output$prob[5])
+  result.target <- c(result.target, output$prob[1])
+}
+result.comp
+result.target
+plot(seq(-1, 1, by=0.1), result.comp, xlab="overlap", ylab="Activation percentage", ylim=c(0.2,0.8))
+points(seq(-1, 1, by=0.1),result.target, col="red")
+legend("topleft",legend=c("target-tree","competitor-dam"), col=c("red","black"),lty=c(1,2), cex = 0.75)
+# lines(seq(-1, 1, by=0.1),  result.target,xlab="overlap", ylab="Target(rain) percentage", col="red")
 
 visual.world(input.tree.sound, input.tree.wood)
 visual.world(input.tree.sound, input.tree.book)
@@ -936,6 +1010,3 @@ visual.world(input.tree.sound, input.tree.dam)
 visual.world(input.tree.sound, input.tree.eye)
  
 visual.world(input.rain.sound, input.rain.fei)
-
-
-
